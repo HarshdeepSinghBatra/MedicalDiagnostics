@@ -14,7 +14,7 @@ const web3 = new Web3(
 // Creating a Contract instance
 const contract = new web3.eth.Contract(
   abi,
-  "0xDEcfEb5601f5ac4Ac9a1a9271a98bDe97E63323E", // address of PolicyContract on Sepolia testnet
+  "0x72112c6dcc644A5949DFba1FaAC29d7d9fdE462B", // address of PolicyContract on Sepolia testnet
 );
 
 module.exports = { web3, contract }

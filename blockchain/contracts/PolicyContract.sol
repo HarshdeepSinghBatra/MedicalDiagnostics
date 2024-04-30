@@ -59,7 +59,7 @@ contract PolicyContract {
         policies[_policyId].isActive = false;
     }
 
-    function getPolicy(bytes32 _policyId) external view returns (string memory, address, uint256, uint256, uint256, bool, uint256) {
+    function getPolicy(bytes32 _policyId) external view returns (string memory name, address holder, uint256 premiumAmount, uint256 startDate, uint256 endDate, bool isActive, uint256 maturityAmount) {
         Policy storage policy = policies[_policyId];
         return (policy.name, policy.holder, policy.premiumAmount, policy.startDate, policy.endDate, policy.isActive, policy.maturityAmount);
     }
