@@ -4,7 +4,7 @@ require('dotenv').config({ path: require('find-config')('.env') })
 // Loading the contract ABI
 // (the results of a previous compilation step)
 const fs = require("fs");
-const { abi } = JSON.parse(fs.readFileSync("./abis/PolicyContract.json"));
+const { abi } = JSON.parse(fs.readFileSync("./abis/FullContract.json"));
 
 async function main() {
   // Configuring the connection to an Ethereum node
@@ -23,16 +23,15 @@ async function main() {
   // Creating a Contract instance
   const contract = new web3.eth.Contract(
     abi,
-    // Replace this with the address of your deployed contract
-    "0x5E798e38a10cBA3c4955BC845E3bC42b65b18E85",
+    "0xc26E25111431Fb12380F0dd48B4d872754444369", // address of FullContract on Sepolia testnet
   );
   // Issuing a transaction that calls the `echo` method
-  const method_abi = contract.methods.createPolicy(1, 20).encodeABI();
+  const method_abi = contract.methods.method_name().encodeABI(); // change method name and pass required args
   const tx = {
     from: signer.address,
     to: contract.options.address,
     data: method_abi,
-    value: '1',
+    value: '0', // appropriate value if payable function
     gasPrice: '100000000000',
   };
   const gas_estimate = await web3.eth.estimateGas(tx);

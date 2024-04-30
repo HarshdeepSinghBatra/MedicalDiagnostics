@@ -1,10 +1,12 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-verify");
+require('dotenv').config({ path: require('find-config')('.env') })
+
 
 /** @type import('hardhat/config').HardhatUserConfig */
-const sepoliaURL = "https://sepolia.infura.io/v3/6bb5631acba044e8998f0117ec478bc4"
-const PRIVATE_KEY = "99ed94c57b09d14a8864bcd0d4679d793f0dca130720f958fdc284baaea13b98"
-const etherscanAPIKey = "EXVKPPKMR4BWCNC5KI6IUMGK4MFC9QNJIV"
+const sepoliaURL = `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`
+const PRIVATE_KEY = process.env.SIGNER_PRIVATE_KEY
+const etherscanAPIKey = process.env.ETHERSCAN_API_KEY
 
 module.exports = {
   solidity: "0.8.24",
