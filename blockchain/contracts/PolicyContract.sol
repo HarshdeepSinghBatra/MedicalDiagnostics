@@ -10,13 +10,27 @@ contract PolicyContract {
         uint256 startDate;
         uint256 endDate;
         bool isActive;
+        uint256 maturityAmount;
+        string name;
     }
 
     mapping(bytes32 => Policy) public policies;
 
     event PolicyCreated(bytes32 indexed policyId, address indexed holder, uint256 startDate, uint256 endDate);
 
-    function createPolicy(uint256 _premiumAmount, uint256 _duration) external payable {
+    address payable public owner;
+
+    constructor() {
+        owner = payable(msg.sender);
+    }
+
+    function withdraw() external {
+        require(msg.sender == owner, "Only the owner can withdraw funds");
+        owner.transfer(address(this).balance);
+    }
+
+
+    function createPolicy(string memory name, uint256 _premiumAmount, uint256 _duration, uint256 _maturityAmount) external payable {
         // console.log(msg.value);
         require(msg.value == _premiumAmount, "Premium amount should be paid during policy creation");
         // console.log(_premiumAmount);
@@ -30,7 +44,9 @@ contract PolicyContract {
             premiumAmount: _premiumAmount,
             startDate: block.timestamp,
             endDate: endDate,
-            isActive: true
+            isActive: true,
+            maturityAmount: _maturityAmount,
+            name: name
         });
 
         emit PolicyCreated(policyId, msg.sender, block.timestamp, endDate);
@@ -43,8 +59,8 @@ contract PolicyContract {
         policies[_policyId].isActive = false;
     }
 
-    function getPolicy(bytes32 _policyId) external view returns (address, uint256, uint256, uint256, bool) {
+    function getPolicy(bytes32 _policyId) external view returns (string memory, address, uint256, uint256, uint256, bool, uint256) {
         Policy storage policy = policies[_policyId];
-        return (policy.holder, policy.premiumAmount, policy.startDate, policy.endDate, policy.isActive);
+        return (policy.name, policy.holder, policy.premiumAmount, policy.startDate, policy.endDate, policy.isActive, policy.maturityAmount);
     }
 }

@@ -1,6 +1,3 @@
 {
-  "LockModule#Lock": "0x2219eb2a1f5beB6e256A0EA6EB9Ee3C9C1045503",
-  "PolicyModule#PolicyContract": "0x5E798e38a10cBA3c4955BC845E3bC42b65b18E85",
-  "ClaimsModule#ClaimsContract": "0x3Fd43db2bCce52ba08d8e89A11ac747a383667e2",
-  "FullContractModule#FullContract": "0xc26E25111431Fb12380F0dd48B4d872754444369"
+  "PolicyModule#PolicyContract": "0xDEcfEb5601f5ac4Ac9a1a9271a98bDe97E63323E"
 }

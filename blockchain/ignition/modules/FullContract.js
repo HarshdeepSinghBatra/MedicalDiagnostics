@@ -8,4 +8,4 @@ const FullContractModule = buildModule("FullContractModule", (m) => {
 
 module.exports = FullContractModule;
 
-// 0x5E798e38a10cBA3c4955BC845E3bC42b65b18E85
+// 0xc26E25111431Fb12380F0dd48B4d872754444369

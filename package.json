@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "find-config": "^1.0.0",
     "hardhat": "^2.22.3",
     "web3": "^4.8.0"
