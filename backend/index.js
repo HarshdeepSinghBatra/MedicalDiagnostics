@@ -148,7 +148,7 @@ app.post('/cancelPolicy', async (req, res) => {
 
     // get the emitted event values and send them as response
     
-      res.status(200).json({message: policyId+"Discontinued successfully"});
+      res.status(200).json({message: policyId + " Discontinued successfully"});
     
 
   } catch (err) {
