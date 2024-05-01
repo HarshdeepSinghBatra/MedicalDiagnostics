@@ -15,12 +15,12 @@ const web3 = new Web3(
 // Creating a Contract instance
 const policyContract = new web3.eth.Contract(
   policyAbi.abi,
-  "0x72112c6dcc644A5949DFba1FaAC29d7d9fdE462B", // address of PolicyContract on Sepolia testnet
+  "0x33B00823Cc2FAa953951a17040Cf711a04fb2127", // address of PolicyContract on Sepolia testnet
 );
 
 const medicalRecordsContract = new web3.eth.Contract(
   medicalRecordsAbi.abi,
-  "0x06EBEC24eeBddD0df0C71bFC47f023Cb1B95d20b", // address of MedicalRecordsContract on Sepolia testnet
+  "0x63bfEA0ce1A42A10f6c03f97366Ff3539e3543a1", // address of MedicalRecordsContract on Sepolia testnet
 );
 
 
