@@ -89,28 +89,39 @@ contract ClaimsContract {
     }
 
     function processClaim(bytes32 _claimId) public {
-        require(!claims[_claimId].isApproved, "Claim is already approved");
+        if (claims[_claimId].isApproved) {
+            revert("Claim is already approved.");
+        }
+
+        require(!claims[_claimId].isRejected, "Claim is already rejected");
+        
         Policy memory userPolicy = PContract.getPolicy(claims[_claimId].policyId);
         PatientRecord memory record = MContract.getRecordById(claims[_claimId].recordId);
-        // console.log(userPolicy.name);
-        // console.log(record.name);
-        // console.log(record.aadhaarNo);
-        require(userPolicy.isActive, "Policy is not active");
-        require(claims[_claimId].amount <= userPolicy.maturityAmount, "Claim amount exceeds coverage");
-        require(!record.isClaimed, "Treatment already claimed");
+
+        if (!userPolicy.isActive) {
+            claims[_claimId].isRejected = true;
+            revert("Policy is not active.");
+        }
+
+        if (claims[_claimId].amount > userPolicy.maturityAmount) {
+            claims[_claimId].isRejected = true;
+            revert("Claim amount exceeds coverage.");
+        }
+
+        if (keccak256(abi.encodePacked(claims[_claimId].typeOfTreatment)) != keccak256(abi.encodePacked(userPolicy.typeOfTreatment))) {
+            claims[_claimId].isRejected = true;
+            revert("Treatment type not covered in the policy.");
+        }
+
+        if (record.isClaimed) {
+            claims[_claimId].isRejected = true;
+            revert("Treatment already claimed.");
+        }
 
         claims[_claimId].isApproved = true;
         
         emit ClaimApproved(_claimId, claims[_claimId].amount);
     }
-
-    // function approveClaim(bytes32 _claimId) external {
-    //     require(claims[_claimId].holder == msg.sender, "You are not authorized to approve this claim");
-    //     require(!claims[_claimId].isApproved, "Claim is already approved");
-
-    //     claims[_claimId].isApproved = true;
-    //     emit ClaimApproved(_claimId, claims[_claimId].amount);
-    // }
 
     function payClaim(bytes32 _claimId) public {
         require(claims[_claimId].isApproved, "Claim is not approved yet");

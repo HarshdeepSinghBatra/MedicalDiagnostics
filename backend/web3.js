@@ -5,11 +5,13 @@ const medicalRecordsAbi = JSON.parse(fs.readFileSync("./abis/MedicalRecords.json
 const claimsAbi = JSON.parse(fs.readFileSync("./abis/ClaimsContract.json"));
 
 // Configuring the connection to an Ethereum node
+
 const web3 = new Web3(
   new Web3.providers.HttpProvider(
     `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
   ),
 );
+
 // const web3 = new Web3(
 //   new Web3.providers.HttpProvider(
 //     `http://127.0.0.1:8545/`,
@@ -33,8 +35,8 @@ const medicalRecordsContract = new web3.eth.Contract(
 
 const claimsContract = new web3.eth.Contract(
   claimsAbi.abi,
-  "0x1e9D0205FBc7e7b40cdB58D6D014235116d42357", // address of MedicalRecordsContract on Sepolia testnet
-  // "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9", // address of MedicalRecordsContract on localhost testnet
+  "0x6D25BaaB1B68f7d12d6C9A70105B96a9D9012560", // address of MedicalRecordsContract on Sepolia testnet
+  // "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9", // address of MedicalRecordsContract on localhost testnet
 );
 
 
