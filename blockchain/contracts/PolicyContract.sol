@@ -12,11 +12,14 @@ contract PolicyContract {
         bool isActive;
         uint256 maturityAmount;
         string name;
+        string typeOfTreatment;
     }
 
     mapping(bytes32 => Policy) public policies;
+    mapping(address => bytes32[]) public userPolicies;
 
     event PolicyCreated(bytes32 indexed policyId, address indexed holder, uint256 startDate, uint256 endDate);
+    event ReturnUserPolicies(Policy[] userPolicies);
 
     address payable public owner;
 
@@ -30,9 +33,9 @@ contract PolicyContract {
     }
 
 
-    function createPolicy(string memory name, uint256 _premiumAmount, uint256 _duration, uint256 _maturityAmount) external payable {
+    function createPolicy(string memory name, string memory _typeOfTreatment, uint256 _premiumAmount, uint256 _duration, uint256 _maturityAmount) public {
         // console.log(msg.value);
-        require(msg.value == _premiumAmount, "Premium amount should be paid during policy creation");
+        // require(msg.value == _premiumAmount, "Premium amount should be paid during policy creation");
         // console.log(_premiumAmount);
         require(_duration > 0, "Policy duration should be greater than zero");
 
@@ -46,8 +49,10 @@ contract PolicyContract {
             endDate: endDate,
             isActive: true,
             maturityAmount: _maturityAmount,
-            name: name
+            name: name,
+            typeOfTreatment: _typeOfTreatment
         });
+        userPolicies[msg.sender].push(policyId);
 
         emit PolicyCreated(policyId, msg.sender, block.timestamp, endDate);
     }
@@ -59,8 +64,21 @@ contract PolicyContract {
         policies[_policyId].isActive = false;
     }
 
-    function getPolicy(bytes32 _policyId) external view returns (string memory name, address holder, uint256 premiumAmount, uint256 startDate, uint256 endDate, bool isActive, uint256 maturityAmount) {
+    function getPolicy(bytes32 _policyId) public view returns (Policy memory) {
         Policy storage policy = policies[_policyId];
-        return (policy.name, policy.holder, policy.premiumAmount, policy.startDate, policy.endDate, policy.isActive, policy.maturityAmount);
+        return policy;
+    }
+
+    function getUserPolicies(address _userAddr) public returns (Policy[] memory UserPolicies) {
+        require(userPolicies[_userAddr].length > 0, "User policies not present"); // Allow access from this contract
+        
+        bytes32[] memory policyIds = userPolicies[_userAddr];
+        Policy[] memory records = new Policy[](policyIds.length);
+        for (uint i = 0; i < policyIds.length; i++) {
+            records[i] = getPolicy(policyIds[i]);
+        }
+
+        emit ReturnUserPolicies(records);
+        return (records);
     }
 }

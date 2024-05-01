@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 contract ClaimsContract {
     struct Claim {
         address holder;
+        string typeOfTreatment;
         bytes32 policyId;
         uint256 amount;
         bool isApproved;
@@ -16,13 +17,14 @@ contract ClaimsContract {
     event ClaimApproved(bytes32 indexed claimId, uint256 amount);
     event ClaimPaid(bytes32 indexed claimId);
 
-    function submitClaim(bytes32 _policyId, uint256 _amount) external {
+    function submitClaim(bytes32 _policyId, uint256 _amount, string memory _typeOfTreatment) external {
         require(_amount > 0, "Claim amount should be greater than zero");
         bytes32 claimId = keccak256(abi.encodePacked(msg.sender, block.timestamp, block.prevrandao));
         claims[claimId] = Claim({
             holder: msg.sender,
             policyId: _policyId,
             amount: _amount,
+            typeOfTreatment: _typeOfTreatment,
             isApproved: false,
             isPaid: false
         });

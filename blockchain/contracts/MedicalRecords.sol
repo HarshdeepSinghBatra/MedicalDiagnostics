@@ -24,7 +24,7 @@ contract MedicalRecords {
         uint256 date;
         string diagnosis;
         uint256 billAmount;
-        // InsuranceClaim[] insuranceClaims;
+        bool isClaimed;
     }
 
     // struct InsuranceClaim {
@@ -68,6 +68,7 @@ contract MedicalRecords {
         newPatient.billAmount = _billAmount;
         newPatient.medicalRecords = _medicalRecords;
         newPatient.hospitalAddr = msg.sender;
+        newPatient.isClaimed = false;
         patientAddrToRecordId[_patientAddr].push(recordIndex);
         hospitalAddrToRecordId[msg.sender].push(recordIndex);
         emit RecordCreated(recordIndex, _patientAddr);
