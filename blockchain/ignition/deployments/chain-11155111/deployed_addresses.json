@@ -1,4 +1,3 @@
 {
-  "PolicyModule#PolicyContract": "0x33B00823Cc2FAa953951a17040Cf711a04fb2127",
-  "MedicalRecordsModule#MedicalRecords": "0x63bfEA0ce1A42A10f6c03f97366Ff3539e3543a1"
+  "ClaimsModule#ClaimsContract": "0x1e9D0205FBc7e7b40cdB58D6D014235116d42357"
 }

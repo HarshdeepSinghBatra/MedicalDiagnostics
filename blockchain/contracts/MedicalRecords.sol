@@ -12,10 +12,11 @@ contract MedicalRecords {
     mapping(address=>bytes32[]) public insurancePolicies; // Stores the policy ID: mapping(patientAddr => array of policyIds)
 
     struct PatientRecord {
+        uint256 _id;
         string name;
         address addr;
         address hospitalAddr;
-        address insuranceAddr;
+        // address insuranceAddr;
         string aadhaarNo; 
         string phoneNo;
         string bloodGroup;
@@ -57,6 +58,7 @@ contract MedicalRecords {
         address _patientAddr
     ) public {
         PatientRecord storage newPatient = patientRecords[recordIndex];
+        newPatient._id = recordIndex;
         newPatient.name = _name;
         newPatient.addr = _patientAddr;
         newPatient.aadhaarNo = _aadhaarNo;
@@ -77,9 +79,13 @@ contract MedicalRecords {
 
 
     // Function to add a medical record (PDF/Image)
-    function addMedicalRecord(string memory recordFile, address _patientAddr, uint256 _recordId) public {
+    function addRecordFiles(string memory recordFile, address _patientAddr, uint256 _recordId) public {
         require(patientRecords[_recordId].addr == _patientAddr, "Patient record not present");
         patientRecords[_recordId].medicalRecords.push(recordFile);
+    }
+
+    function updateClaimStatus(uint256 _recordId) public {
+        patientRecords[_recordId].isClaimed = true;
     }
 
     // Function to get patient details (restricted access for authorized personnel)
@@ -99,7 +105,7 @@ contract MedicalRecords {
     function getRecordById(uint _recordId) public returns (PatientRecord memory patientRecord) {
         require(patientRecords[_recordId].addr != address(0), "Patient record not present"); // Allow access from this contract
         // Add other authorized roles here (e.g., doctor, hospital)
-        require(msg.sender == address(this) || msg.sender == patientRecords[_recordId].addr ||msg.sender == patientRecords[_recordId].hospitalAddr, "Unauthorized access");
+        // require(msg.sender == address(this) || msg.sender == patientRecords[_recordId].addr ||msg.sender == patientRecords[_recordId].hospitalAddr, "Unauthorized access");
         emit ReturnRecordById(patientRecords[_recordId]);
         return patientRecords[_recordId];
     }

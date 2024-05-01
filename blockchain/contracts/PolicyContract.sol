@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 
 contract PolicyContract {
     struct Policy {
+        bytes32 _id;
         address holder;
         uint256 premiumAmount;
         uint256 startDate;
@@ -33,7 +34,7 @@ contract PolicyContract {
     }
 
 
-    function createPolicy(string memory name, string memory _typeOfTreatment, uint256 _premiumAmount, uint256 _duration, uint256 _maturityAmount) public {
+    function createPolicy(string memory _name, string memory _typeOfTreatment, uint256 _premiumAmount, uint256 _duration, uint256 _maturityAmount) external {
         // console.log(msg.value);
         // require(msg.value == _premiumAmount, "Premium amount should be paid during policy creation");
         // console.log(_premiumAmount);
@@ -43,13 +44,14 @@ contract PolicyContract {
         bytes32 policyId = keccak256(abi.encodePacked(msg.sender, block.timestamp, block.prevrandao));
 
         policies[policyId] = Policy({
+            _id: policyId,
             holder: msg.sender,
             premiumAmount: _premiumAmount,
             startDate: block.timestamp,
             endDate: endDate,
             isActive: true,
             maturityAmount: _maturityAmount,
-            name: name,
+            name: _name,
             typeOfTreatment: _typeOfTreatment
         });
         userPolicies[msg.sender].push(policyId);

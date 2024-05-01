@@ -8,4 +8,4 @@ const MedicalRecordsModule = buildModule("MedicalRecordsModule", (m) => {
 
 module.exports = MedicalRecordsModule;
 
-// 0x63bfEA0ce1A42A10f6c03f97366Ff3539e3543a1
+// 0xb3BD8627Dc9961830DF88684F3E12A6A4aCD1bac
