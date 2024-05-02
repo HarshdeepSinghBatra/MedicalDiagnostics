@@ -23,20 +23,20 @@ const web3 = new Web3(
 // Creating a Contract instance
 const policyContract = new web3.eth.Contract(
   policyAbi.abi,
-  "0x973EaCb48790546D44C8a6b1E576dadb16723f10", // address of PolicyContract on Sepolia testnet
+  "0x9a150d8Bb583eFc8ee3bE74B8c2B4f33AB230754", // address of PolicyContract on Sepolia testnet
   // "0x5FbDB2315678afecb367f032d93F642f64180aa3", // address of PolicyContract on localhost testnet
 );
 
 const medicalRecordsContract = new web3.eth.Contract(
   medicalRecordsAbi.abi,
-  "0xb3BD8627Dc9961830DF88684F3E12A6A4aCD1bac", // address of MedicalRecordsContract on Sepolia testnet
+  "0xE76173e361de0d92A63A05548Fd62a73A15e92DB", // address of MedicalRecordsContract on Sepolia testnet
   // "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512", // address of MedicalRecordsContract on localhost testnet
 );
 
 const claimsContract = new web3.eth.Contract(
   claimsAbi.abi,
-  "0x6D25BaaB1B68f7d12d6C9A70105B96a9D9012560", // address of MedicalRecordsContract on Sepolia testnet
-  // "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9", // address of MedicalRecordsContract on localhost testnet
+  "0xb2eC74B68fa7199Be3e9447DcDe89D3dD58285F1", // address of MedicalRecordsContract on Sepolia testnet
+  // "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0", // address of MedicalRecordsContract on localhost testnet
 );
 
 

@@ -1,3 +1,4 @@
 {
-  "ClaimsModule#ClaimsContract": "0x6D25BaaB1B68f7d12d6C9A70105B96a9D9012560"
+  "MedicalRecordsModule#MedicalRecords": "0xE76173e361de0d92A63A05548Fd62a73A15e92DB",
+  "ClaimsModule#ClaimsContract": "0xb2eC74B68fa7199Be3e9447DcDe89D3dD58285F1"
 }

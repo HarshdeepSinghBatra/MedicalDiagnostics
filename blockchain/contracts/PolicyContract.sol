@@ -7,6 +7,7 @@ contract PolicyContract {
     struct Policy {
         bytes32 _id;
         address holder;
+        address insurerAddr;
         uint256 premiumAmount;
         uint256 startDate;
         uint256 endDate;
@@ -18,9 +19,11 @@ contract PolicyContract {
 
     mapping(bytes32 => Policy) public policies;
     mapping(address => bytes32[]) public userPolicies;
+    mapping(address => bytes32[]) public insurerPolicies;
 
     event PolicyCreated(bytes32 indexed policyId, address indexed holder, uint256 startDate, uint256 endDate);
     event ReturnUserPolicies(Policy[] userPolicies);
+    event ReturnInsurerPolicies(Policy[] insurerPolicies);
 
     address payable public owner;
 
@@ -34,18 +37,19 @@ contract PolicyContract {
     }
 
 
-    function createPolicy(string memory _name, string memory _typeOfTreatment, uint256 _premiumAmount, uint256 _duration, uint256 _maturityAmount) external {
+    function createPolicy(address _insurerAddr, string memory _name, string memory _typeOfTreatment, uint256 _premiumAmount, uint256 _duration, uint256 _maturityAmount) external {
         // console.log(msg.value);
         // require(msg.value == _premiumAmount, "Premium amount should be paid during policy creation");
         // console.log(_premiumAmount);
         require(_duration > 0, "Policy duration should be greater than zero");
 
-        uint256 endDate = block.timestamp + _duration;
+        uint256 endDate = block.timestamp + _duration * 86400;
         bytes32 policyId = keccak256(abi.encodePacked(msg.sender, block.timestamp, block.prevrandao));
 
         policies[policyId] = Policy({
             _id: policyId,
             holder: msg.sender,
+            insurerAddr: _insurerAddr,
             premiumAmount: _premiumAmount,
             startDate: block.timestamp,
             endDate: endDate,
@@ -55,6 +59,7 @@ contract PolicyContract {
             typeOfTreatment: _typeOfTreatment
         });
         userPolicies[msg.sender].push(policyId);
+        insurerPolicies[_insurerAddr].push(policyId);
 
         emit PolicyCreated(policyId, msg.sender, block.timestamp, endDate);
     }
@@ -81,6 +86,18 @@ contract PolicyContract {
         }
 
         emit ReturnUserPolicies(records);
+        return (records);
+    }
+    function getInsurerPolicies(address _insurerAddr) public returns (Policy[] memory InsurerPolicies) {
+        require(insurerPolicies[_insurerAddr].length > 0, "Insurer policies not present"); // Allow access from this contract
+        
+        bytes32[] memory policyIds = insurerPolicies[_insurerAddr];
+        Policy[] memory records = new Policy[](policyIds.length);
+        for (uint i = 0; i < policyIds.length; i++) {
+            records[i] = getPolicy(policyIds[i]);
+        }
+
+        emit ReturnInsurerPolicies(records);
         return (records);
     }
 }

@@ -18,12 +18,11 @@ contract MedicalRecords {
         address hospitalAddr;
         // address insuranceAddr;
         string aadhaarNo; 
-        string phoneNo;
-        string bloodGroup;
         string email;
         string[] medicalRecords; // record data (PDF/Image)
         uint256 date;
         string diagnosis;
+        string typeOfTreatment;
         uint256 billAmount;
         bool isClaimed;
     }
@@ -49,10 +48,9 @@ contract MedicalRecords {
     function addPatientRecord(
         string memory _name,
         string memory _aadhaarNo,
-        string memory _phoneNo,
-        string memory _bloodGroup,
         string memory _email,
         string memory _diagnosis,
+        string memory _typeOfTreatment,
         string[] memory _medicalRecords,
         uint256 _billAmount,
         address _patientAddr
@@ -62,11 +60,10 @@ contract MedicalRecords {
         newPatient.name = _name;
         newPatient.addr = _patientAddr;
         newPatient.aadhaarNo = _aadhaarNo;
-        newPatient.phoneNo = _phoneNo;
-        newPatient.bloodGroup = _bloodGroup;
         newPatient.email = _email;
         newPatient.date = block.timestamp;
         newPatient.diagnosis = _diagnosis;
+        newPatient.typeOfTreatment = _typeOfTreatment;
         newPatient.billAmount = _billAmount;
         newPatient.medicalRecords = _medicalRecords;
         newPatient.hospitalAddr = msg.sender;

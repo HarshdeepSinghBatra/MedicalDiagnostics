@@ -15,14 +15,14 @@ const { web3, policyContract, medicalRecordsContract, claimsContract } = require
 app.post('/createPolicy', async (req, res) => {
   try {
 
-    const { name, typeOfTreatment, premiumAmount, duration, maturityAmount } = req.body
+    const { insuranceAddr, name, typeOfTreatment, premiumAmount, duration, maturityAmount } = req.body
 
     const signer = web3.eth.accounts.privateKeyToAccount(
       "0x" + process.env.SIGNER_PRIVATE_KEY
     );
     // console.log(contract.methods)
     web3.eth.accounts.wallet.add(signer);
-    const method_abi = policyContract.methods.createPolicy(name, typeOfTreatment, premiumAmount, duration, maturityAmount).encodeABI(); // change method name and pass required args
+    const method_abi = policyContract.methods.createPolicy(web3.utils.toHex(insuranceAddr), name, typeOfTreatment, premiumAmount, duration, maturityAmount).encodeABI(); // change method name and pass required args
     const tx = {
       from: signer.address,
       to: policyContract.options.address,
@@ -235,20 +235,77 @@ app.post('/getUserPolicies', async (req, res) => {
     res.status(500).json({message: "Error: " + err.message})
   }
 })
-
-// Medical Records
-
-app.post('/addPatientRecord', async (req, res) => {
+app.post('/getInsurerPolicies', async (req, res) => {
   try {
 
-    const { name, aadhaarNo, phoneNo, bloodGroup, email, diagnosis, medicalRecords, billAmount, patientAddr } = req.body
+    const { insurerAddr } = req.body
 
     const signer = web3.eth.accounts.privateKeyToAccount(
       "0x" + process.env.SIGNER_PRIVATE_KEY
     );
     // console.log(contract.methods)
     web3.eth.accounts.wallet.add(signer);
-    const method_abi = medicalRecordsContract.methods.addPatientRecord(name, aadhaarNo, phoneNo, bloodGroup, email, diagnosis, medicalRecords, billAmount, patientAddr).encodeABI(); // change method name and pass required args
+    const method_abi = policyContract.methods.getInsurerPolicies(insurerAddr).encodeABI(); // change method name and pass required args
+    const tx = {
+      from: signer.address,
+      to: policyContract.options.address,
+      data: method_abi,
+      value: '0', // appropriate value if payable function
+      gasPrice: '100000000000',
+    };
+
+
+    const gas_estimate = await web3.eth.estimateGas(tx);
+    tx.gas = gas_estimate;
+    const signedTx = await web3.eth.accounts.signTransaction(tx, signer.privateKey);
+    console.log("Raw transaction data: " + ( signedTx).rawTransaction);
+    
+    // Sending the transaction to the network
+    const receipt = await web3.eth
+      .sendSignedTransaction(signedTx.rawTransaction)
+      .once("transactionHash", (txhash) => {
+        console.log(`Mining transaction ...`);
+        console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
+      });
+    // The transaction is now on chain!
+    console.log(`Mined in block ${receipt.blockNumber}`);
+    // console.log(receipt)
+
+    // get the emitted event values and send them as response
+    await  policyContract.events.ReturnInsurerPolicies({ fromBlock: receipt.blockNumber})
+    .on('data', async (event) => {
+      console.log('inside PolicyCreated event:', event.returnValues)
+      const data = event.returnValues.insurerPolicies.map(obj => {
+        const rvObj = Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [key, typeof value === 'bigint' ? String(value) : value])
+        );
+        return rvObj
+      })
+
+      // console.log('inside PolicyCreated event:', data);
+      res.status(200).json({message: "Insurer Policies", rv: data, txHash: receipt.transactionHash})
+    })
+    
+
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({message: "Error: " + err.message})
+  }
+})
+
+// Medical Records
+
+app.post('/addPatientRecord', async (req, res) => {
+  try {
+
+    const { name, aadhaarNo, email, diagnosis, typeOfTreatment, medicalRecords, billAmount, patientAddr } = req.body
+
+    const signer = web3.eth.accounts.privateKeyToAccount(
+      "0x" + process.env.SIGNER_PRIVATE_KEY
+    );
+    // console.log(contract.methods)
+    web3.eth.accounts.wallet.add(signer);
+    const method_abi = medicalRecordsContract.methods.addPatientRecord(name, aadhaarNo, email, diagnosis, typeOfTreatment, medicalRecords, billAmount, patientAddr).encodeABI(); // change method name and pass required args
     const tx = {
       from: signer.address,
       to: medicalRecordsContract.options.address,
@@ -411,14 +468,14 @@ app.post('/getAllRecordsByHospital', async (req, res) => {
 app.post('/submitClaim', async(req, res) => {
   try {
 
-    const { policyId, recordId, amount, typeOfTreatment } = req.body
+    const { insurerAddr, policyId, recordId, amount, typeOfTreatment } = req.body
 
     const signer = web3.eth.accounts.privateKeyToAccount(
       "0x" + process.env.SIGNER_PRIVATE_KEY
     );
     // console.log(contract.methods)
     web3.eth.accounts.wallet.add(signer);
-    const method_abi = claimsContract.methods.submitClaim(web3.utils.toHex(policyId), recordId, amount, typeOfTreatment).encodeABI(); // change method name and pass required args
+    const method_abi = claimsContract.methods.submitClaim(web3.utils.toHex(insurerAddr), web3.utils.toHex(policyId), recordId, amount, typeOfTreatment).encodeABI(); // change method name and pass required args
     const tx = {
       from: signer.address,
       to: claimsContract.options.address,
@@ -630,3 +687,118 @@ app.get("/getClaim", async (req, res) => {
     res.status(500).json({message: "Error: " + err.message})
   }
 })
+
+app.post('/getUserClaims', async (req, res) => {
+  try {
+
+    const { userAddr } = req.body
+
+    const signer = web3.eth.accounts.privateKeyToAccount(
+      "0x" + process.env.SIGNER_PRIVATE_KEY
+    );
+    // console.log(contract.methods)
+    web3.eth.accounts.wallet.add(signer);
+    const method_abi = claimsContract.methods.getUserClaims(userAddr).encodeABI(); // change method name and pass required args
+    const tx = {
+      from: signer.address,
+      to: claimsContract.options.address,
+      data: method_abi,
+      value: '0', // appropriate value if payable function
+      gasPrice: '100000000000',
+    };
+
+
+    const gas_estimate = await web3.eth.estimateGas(tx);
+    tx.gas = gas_estimate;
+    const signedTx = await web3.eth.accounts.signTransaction(tx, signer.privateKey);
+    console.log("Raw transaction data: " + ( signedTx).rawTransaction);
+    
+    // Sending the transaction to the network
+    const receipt = await web3.eth
+      .sendSignedTransaction(signedTx.rawTransaction)
+      .once("transactionHash", (txhash) => {
+        console.log(`Mining transaction ...`);
+        console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
+      });
+    // The transaction is now on chain!
+    console.log(`Mined in block ${receipt.blockNumber}`);
+    // console.log(receipt)
+
+    // get the emitted event values and send them as response
+    await  claimsContract.events.ReturnUserClaims({ fromBlock: receipt.blockNumber})
+    .on('data', async (event) => {
+      console.log('inside PolicyCreated event:', event.returnValues)
+      const data = event.returnValues.userClaims.map(obj => {
+        const rvObj = Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [key, typeof value === 'bigint' ? String(value) : value])
+        );
+        return rvObj
+      })
+
+      // console.log('inside PolicyCreated event:', data);
+      res.status(200).json({message: "User Policies", rv: data, txHash: receipt.transactionHash})
+    })
+    
+
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({message: "Error: " + err.message})
+  }
+} )
+app.post('/getInsurerClaims', async (req, res) => {
+  try {
+
+    const { insurerAddr } = req.body
+
+    const signer = web3.eth.accounts.privateKeyToAccount(
+      "0x" + process.env.SIGNER_PRIVATE_KEY
+    );
+    // console.log(contract.methods)
+    web3.eth.accounts.wallet.add(signer);
+    const method_abi = claimsContract.methods.getInsurerClaims(insurerAddr).encodeABI(); // change method name and pass required args
+    const tx = {
+      from: signer.address,
+      to: claimsContract.options.address,
+      data: method_abi,
+      value: '0', // appropriate value if payable function
+      gasPrice: '100000000000',
+    };
+
+
+    const gas_estimate = await web3.eth.estimateGas(tx);
+    tx.gas = gas_estimate;
+    const signedTx = await web3.eth.accounts.signTransaction(tx, signer.privateKey);
+    console.log("Raw transaction data: " + ( signedTx).rawTransaction);
+    
+    // Sending the transaction to the network
+    const receipt = await web3.eth
+      .sendSignedTransaction(signedTx.rawTransaction)
+      .once("transactionHash", (txhash) => {
+        console.log(`Mining transaction ...`);
+        console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
+      });
+    // The transaction is now on chain!
+    console.log(`Mined in block ${receipt.blockNumber}`);
+    // console.log(receipt)
+
+    // get the emitted event values and send them as response
+    await  claimsContract.events.ReturnInsurerClaims({ fromBlock: receipt.blockNumber})
+    .on('data', async (event) => {
+      console.log('inside PolicyCreated event:', event.returnValues)
+      const data = event.returnValues.insurerClaims.map(obj => {
+        const rvObj = Object.fromEntries(
+          Object.entries(obj).map(([key, value]) => [key, typeof value === 'bigint' ? String(value) : value])
+        );
+        return rvObj
+      })
+
+      // console.log('inside PolicyCreated event:', data);
+      res.status(200).json({message: "User Policies", rv: data, txHash: receipt.transactionHash})
+    })
+    
+
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({message: "Error: " + err.message})
+  }
+} )
